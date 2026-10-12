@@ -4,7 +4,7 @@
 @inject IFileService fileService
 
 <div class="add-article-form">
-    <h1>Dodaj artykul</h1>
+    <h2 class="add-article-title">Dodaj artykuł</h2>
     @if(previewImage != null)
     {
         <div class="preview-image">
@@ -13,7 +13,7 @@
     }
     <InputFile onchange="ChoosePhoto" accept="image/*" />
     <form @onsubmit="AddArticle" @onsubmit:preventDefault>
-        <input @bind="Title" class="form-control" />
+        <input @bind="Title" class="form-control"  
         <textarea @bind="Text" class="form-control" />
         <input @bind="Author" class="form-control" />
         <button type="submit" class="btn btn-primary">Dodaj</button>

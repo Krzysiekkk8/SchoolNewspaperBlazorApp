@@ -1,5 +1,7 @@
 ﻿@using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Interfaces.Service
+<div class="articles-grid">
+    
 @foreach (var article in Articles)
 {
     @if (permissions == true)
@@ -28,6 +30,8 @@
         </NavLink>
     }
 }
+       
+    </div>
 
 @code {
     [Parameter]
