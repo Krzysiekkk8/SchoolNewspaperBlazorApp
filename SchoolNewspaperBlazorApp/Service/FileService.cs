@@ -39,8 +39,8 @@ namespace SchoolNewspaperBlazorApp.Service
             var id = await _fileRepository.GetLastFileID();
             var mediaFile = new MediaFile
             {
-               Id = id,
-               FileName = fileName,
+                Id = id,
+                FileName = fileName,
                 FileType = extension
             };
             await _fileRepository.AddFileAsync(mediaFile);
