@@ -2,14 +2,554 @@
 @using SchoolNewspaperBlazorApp.Components.Components
 @using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Interfaces.Service
-@inject IArticleService articleService;
+@inject IArticleService articleService
 
-<ArticleCard Articles="articles" permissions="false"/>
+<style>
+    .wow-home {
+        --wow-bg: #080b14;
+        --wow-purple: #9b87ff;
+        --wow-cyan: #65e5ff;
+        color: #f5f5ff;
+    }
 
+    .wow-hero {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        padding: 75px 38px;
+        border-radius: 30px;
+        background: #0b1020;
+        border: 1px solid rgba(255,255,255,.12);
+        box-shadow: 0 25px 80px rgba(28, 20, 80, .2);
+    }
 
-@code 
-{
-    public List<Article> articles = new List<Article>();
+        .wow-hero::before {
+            content: "";
+            position: absolute;
+            inset: -100%;
+            z-index: -2;
+            background: conic-gradient( from 0deg, #101629, #5140a0, #112b48, #17112d, #101629 );
+            animation: auroraSpin 18s linear infinite;
+        }
+
+        .wow-hero::after {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            z-index: -1;
+            border-radius: 29px;
+            background: radial-gradient(ellipse at 15% 15%, rgba(126, 91, 255, .24), transparent 48%), radial-gradient(ellipse at 90% 85%, rgba(58, 203, 255, .16), transparent 42%), #0b1020;
+        }
+
+    .wow-orb {
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        right: 8%;
+        top: 12%;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #9277ff, #4bdcff);
+        filter: blur(85px);
+        opacity: .22;
+        pointer-events: none;
+        animation: orbFloat 8s ease-in-out infinite alternate;
+    }
+
+    .wow-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 15px;
+        border: 1px solid rgba(163, 146, 255, .35);
+        border-radius: 100px;
+        background: rgba(130, 104, 255, .10);
+        color: #d4caff;
+        font-size: .75rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        animation: fadeUp .8s both;
+    }
+
+    .wow-live-dot {
+        width: 7px;
+        height: 7px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #70f5c4;
+        box-shadow: 0 0 14px #70f5c4;
+        animation: livePulse 2s ease-in-out infinite;
+    }
+
+    .wow-title {
+        margin-top: 28px;
+        max-width: 750px;
+        font-size: clamp(2.5rem, 6vw, 5rem);
+        font-weight: 900;
+        letter-spacing: -3px;
+        line-height: 1.03;
+        animation: fadeUp .9s .1s both;
+    }
+
+    .wow-gradient-text {
+        color: #b5a5ff;
+        background: linear-gradient( 100deg, #a18bff 0%, #80dfff 35%, #ffffff 50%, #9d8bff 70%, #a18bff 100% );
+        background-size: 250% auto;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientFlow 7s linear infinite;
+    }
+
+    .wow-description {
+        max-width: 570px;
+        color: #a7b0c5;
+        font-size: 1.08rem;
+        line-height: 1.9;
+        animation: fadeUp .9s .2s both;
+    }
+
+    .wow-main-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px 24px;
+        border: 1px solid rgba(255,255,255,.25);
+        border-radius: 100px;
+        color: white !important;
+        background: linear-gradient(110deg, #7760e8, #3a80bd);
+        text-decoration: none !important;
+        font-weight: 800;
+        box-shadow: 0 8px 30px rgba(102, 92, 255, .24);
+        transition: transform .35s, box-shadow .35s, filter .35s;
+        animation: fadeUp .9s .3s both;
+    }
+
+        .wow-main-button:hover {
+            transform: translateY(-4px) scale(1.025);
+            box-shadow: 0 15px 45px rgba(102, 130, 255, .4);
+            filter: brightness(1.15);
+        }
+
+        .wow-main-button span {
+            transition: transform .3s;
+        }
+
+        .wow-main-button:hover span {
+            transform: translateX(5px);
+        }
+
+    .wow-section {
+        margin-top: 75px;
+        margin-bottom: 65px;
+    }
+
+    .wow-section-label {
+        color: #9d8cff;
+        font-size: .72rem;
+        font-weight: 900;
+        letter-spacing: 3px;
+    }
+
+    .wow-section-title {
+        margin-top: 10px;
+        color: #161827;
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 900;
+        letter-spacing: -1px;
+    }
+
+    .wow-section-description {
+        color: #777d8e;
+    }
+
+    .wow-divider {
+        height: 1px;
+        margin-top: 35px;
+        background: linear-gradient( 90deg, transparent, rgba(128, 110, 255, .65), rgba(88, 206, 255, .45), transparent );
+    }
+
+    .wow-nav-card {
+        --card-accent: #9e8bff;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 285px;
+        padding: 28px;
+        overflow: hidden;
+        isolation: isolate;
+        border: 1px solid rgba(135, 130, 180, .20);
+        border-radius: 24px;
+        color: #f6f6ff !important;
+        background: linear-gradient(145deg, #171b2d, #0d1020);
+        text-decoration: none !important;
+        transition: transform .4s cubic-bezier(.2,.8,.2,1), border-color .4s, box-shadow .4s;
+        animation: fadeUp .8s both;
+    }
+
+        .wow-nav-card:nth-child(1) {
+            animation-delay: .05s;
+        }
+
+        .wow-nav-card:nth-child(2) {
+            animation-delay: .15s;
+        }
+
+        .wow-nav-card:nth-child(3) {
+            animation-delay: .25s;
+        }
+
+        .wow-nav-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: 0;
+            background: radial-gradient( circle at 50% 0%, rgba(145, 122, 255, .25), transparent 65% );
+            transition: opacity .45s;
+        }
+
+        .wow-nav-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 65%;
+            height: 100%;
+            transform: skewX(-20deg);
+            background: linear-gradient( 90deg, transparent, rgba(255,255,255,.07), transparent );
+            transition: left .7s ease;
+            pointer-events: none;
+        }
+
+        .wow-nav-card:hover {
+            transform: translateY(-9px) scale(1.015);
+            border-color: rgba(159, 139, 255, .65);
+            box-shadow: 0 25px 55px rgba(24, 22, 55, .18), 0 0 30px rgba(135, 114, 255, .08);
+            color: white;
+        }
+
+            .wow-nav-card:hover::before {
+                opacity: 1;
+            }
+
+            .wow-nav-card:hover::after {
+                left: 150%;
+            }
+
+    .wow-card-icon {
+        display: grid;
+        place-items: center;
+        width: 62px;
+        height: 62px;
+        margin-bottom: 28px;
+        border: 1px solid rgba(172, 156, 255, .3);
+        border-radius: 19px;
+        background: rgba(133, 111, 255, .12);
+        font-size: 1.8rem;
+        transition: transform .4s, background .4s;
+    }
+
+    .wow-nav-card:hover .wow-card-icon {
+        transform: translateY(-4px) rotate(-5deg) scale(1.08);
+        background: rgba(133, 111, 255, .22);
+    }
+
+    .wow-card-title {
+        margin-bottom: 12px;
+        color: #fff;
+        font-size: 1.35rem;
+        font-weight: 850;
+    }
+
+    .wow-card-description {
+        color: #a6acc0;
+        line-height: 1.8;
+        flex-grow: 1;
+    }
+
+    .wow-card-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(255,255,255,.09);
+        color: #b8a9ff;
+        font-weight: 800;
+    }
+
+    .wow-card-arrow {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: rgba(149, 129, 255, .12);
+        transition: transform .3s, background .3s;
+    }
+
+    .wow-nav-card:hover .wow-card-arrow {
+        transform: translateX(4px);
+        background: rgba(149, 129, 255, .3);
+    }
+
+    .wow-empty {
+        padding: 35px;
+        border: 1px solid rgba(140, 130, 200, .18);
+        border-radius: 22px;
+        background: #f8f8fc;
+    }
+
+    .wow-footer-line {
+        height: 2px;
+        width: 65px;
+        margin: 15px 0;
+        border-radius: 5px;
+        background: linear-gradient(90deg, #9581ff, #61dfff);
+    }
+
+    @@keyframes auroraSpin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @@keyframes orbFloat {
+        from {
+            transform: translate(0, 0) scale(.9);
+        }
+
+        to {
+            transform: translate(-35px, 28px) scale(1.2);
+        }
+    }
+
+    @@keyframes gradientFlow {
+        from {
+            background-position: 0% center;
+        }
+
+        to {
+            background-position: 250% center;
+        }
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(24px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes livePulse {
+        0%, 100% {
+            opacity: 1;
+            box-shadow: 0 0 12px #70f5c4;
+        }
+
+        50% {
+            opacity: .5;
+            box-shadow: 0 0 3px #70f5c4;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .wow-hero {
+            padding: 42px 25px;
+            border-radius: 23px;
+        }
+
+        .wow-title {
+            letter-spacing: -1.5px;
+        }
+
+        .wow-section {
+            margin-top: 50px;
+        }
+
+        .wow-nav-card {
+            min-height: 250px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .wow-home *,
+        .wow-home *::before,
+        .wow-home *::after {
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: .01ms !important;
+        }
+    }
+</style>
+
+<div class="wow-home">
+
+    <!-- HERO: animowana zorza -->
+    <section class="wow-hero">
+        <div class="wow-orb"></div>
+
+        <div class="wow-eyebrow">
+            <span class="wow-live-dot"></span>
+            GAZETKA SZKOLNA
+        </div>
+
+        <h1 class="wow-title">
+            Szkolne historie.<br />
+            <span class="wow-gradient-text">Nowa perspektywa.</span>
+        </h1>
+
+        <p class="wow-description mt-4 mb-4">
+            Jedno miejsce, wiele historii. Odkrywaj wiadomości,
+            poznawaj ludzi i bądź na bieżąco z tym, co naprawdę
+            dzieje się w naszej szkole.
+        </p>
+
+        <a href="/aktualnosci" class="wow-main-button">
+            Odkryj najnowsze wiadomości
+            <span>↗</span>
+        </a>
+
+        <div class="wow-divider"></div>
+
+        <div class="d-flex flex-wrap gap-4 mt-4">
+            <div>
+                <div class="fw-bold fs-4 text-white">01</div>
+                <div class="small text-white-50">Szkolne historie</div>
+            </div>
+            <div>
+                <div class="fw-bold fs-4 text-white">02</div>
+                <div class="small text-white-50">Aktualne informacje</div>
+            </div>
+            <div>
+                <div class="fw-bold fs-4 text-white">03</div>
+                <div class="small text-white-50">Wspólna społeczność</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WYRÓŻNIONE ARTYKUŁY -->
+    <section class="wow-section">
+
+        <div class="wow-section-label">WYSELEKCJONOWANE DLA CIEBIE</div>
+
+        <h2 class="wow-section-title">
+            Warto przeczytać<span style="color:#9581ff;">.</span>
+        </h2>
+
+        <div class="wow-footer-line"></div>
+
+        <p class="wow-section-description mb-4">
+            Historie, od których warto zacząć.
+        </p>
+
+        @if (articles != null && articles.Count > 0)
+        {
+            <ArticleCard Articles="articles" permissions="false" />
+        }
+        else
+        {
+            <div class="wow-empty">
+                <h5 class="fw-bold text-dark">Przed nami nowe historie</h5>
+                <p class="text-secondary mb-0">
+                    W tej chwili nie ma jeszcze artykułów.
+                    Wróć później i sprawdź, co nowego przygotowała redakcja.
+                </p>
+            </div>
+        }
+
+    </section>
+
+    <!-- KAFELKI NAWIGACYJNE -->
+    <section class="wow-section">
+
+        <div class="wow-section-label">POZNAJ NASZ ŚWIAT</div>
+
+        <h2 class="wow-section-title">
+            Odkryj więcej<span style="color:#9581ff;">.</span>
+        </h2>
+
+        <div class="wow-footer-line"></div>
+
+        <p class="wow-section-description mb-4">
+            Trzy drogi do tego, co ważne.
+        </p>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <a href="/aktualnosci" class="wow-nav-card">
+                    <div class="wow-card-icon">📰</div>
+
+                    <h3 class="wow-card-title">Aktualności</h3>
+
+                    <p class="wow-card-description">
+                        Bądź pierwszy na bieżąco. Poznaj wiadomości,
+                        które tworzą codzienność naszej szkoły.
+                    </p>
+
+                    <div class="wow-card-link">
+                        <span>Przeglądaj wiadomości</span>
+                        <span class="wow-card-arrow">→</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="/wydarzenia" class="wow-nav-card">
+                    <div class="wow-card-icon">✦</div>
+
+                    <h3 class="wow-card-title">Wydarzenia</h3>
+
+                    <p class="wow-card-description">
+                        Konkursy, spotkania, inicjatywy i wyjątkowe
+                        momenty, które łączą naszą społeczność.
+                    </p>
+
+                    <div class="wow-card-link">
+                        <span>Odkrywaj wydarzenia</span>
+                        <span class="wow-card-arrow">→</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="/kontakt" class="wow-nav-card">
+                    <div class="wow-card-icon">✉</div>
+
+                    <h3 class="wow-card-title">Kontakt</h3>
+
+                    <p class="wow-card-description">
+                        Masz własną historię do opowiedzenia?
+                        Pomysł na artykuł? Odezwij się do redakcji.
+                    </p>
+
+                    <div class="wow-card-link">
+                        <span>Porozmawiaj z nami</span>
+                        <span class="wow-card-arrow">→</span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+</div>
+
+@code {
+    public List<Article> articles = new();
+
     protected override async Task OnInitializedAsync()
     {
         articles = await articleService.GetAllArticlesAsync();

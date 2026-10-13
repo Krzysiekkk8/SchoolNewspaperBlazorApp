@@ -11,5 +11,10 @@ namespace SchoolNewspaperBlazorApp.Repository
         {
             _context = context;
         }
+
+        public Task AddUserAsync(User user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

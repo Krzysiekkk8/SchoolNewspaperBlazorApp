@@ -1,36 +1,56 @@
 ﻿@inherits LayoutComponentBase
 
-<nav class="navbar navbar-expand-lg bg-dark navbar-dark shadow">
-    <div class="container">
+<div class="animated-background">
+    <div class="ambient-orb orb-one"></div>
+    <div class="ambient-orb orb-two"></div>
+    <div class="ambient-orb orb-three"></div>
+    <div class="background-grid"></div>
+</div>
 
-        <a class="navbar-brand fw-bold fs-4" href="/">
-            𝙂𝙖𝙯𝙚𝙩𝙠𝙖
-        </a>
+<header class="site-header">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand brand-logo" href="/">
+                <span class="brand-symbol">G</span>
+                <span>GAZETKA<span class="brand-dot">.</span></span>
+            </a>
 
-        <div class="navbar-nav ms-4">
-            <a class="nav-link active" href="/">Strona główna</a>
-            <a class="nav-link" href="/aktualnosci">Aktualności</a>
-            <a class="nav-link" href="/wydarzenia">Wydarzenia</a>
-            <a class="nav-link" href="/kontakt">Kontakt</a>
-            <a class="nav-link" href="/adminPanel">Admin Panel</a>
-        </div>
-
-        <form class="d-flex ms-auto" role="search">
-            <input class="form-control me-2"
-                   type="search"
-                   placeholder="Szukaj..."
-                   aria-label="Szukaj" />
-
-            <button class="btn" type="submit">
-                Szukaj
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNavigation"
+                    aria-controls="mainNavigation"
+                    aria-expanded="false"
+                    aria-label="Otwórz menu">
+                <span class="navbar-toggler-icon"></span>
             </button>
-        </form>
 
-    </div>
-</nav>
+            <div class="collapse navbar-collapse" id="mainNavigation">
+                <div class="navbar-nav mx-auto navigation-links">
+                    <a class="nav-link" href="/">Główna</a>
+                    <a class="nav-link" href="/aktualnosci">Aktualności</a>
+                    <a class="nav-link" href="/wydarzenia">Wydarzenia</a>
+                    <a class="nav-link" href="/adminPanel">Administracja</a>
+                </div>
 
-<main class="container py-4">
+                <a href="/aktualnosci" class="header-cta">
+                    Odkrywaj <span>↗</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="site-content">
     @Body
 </main>
 
+<footer class="site-footer">
+    <div class="container footer-inner">
+        <div>
+            <span class="footer-brand">GAZETKA<span class="brand-dot">.</span></span>
+            <p>Szkolne życie. Prawdziwe historie.</p>
+        </div>
 
+        <a href="/" class="footer-home">Powrót na górę ↑</a>
+    </div>
+</footer>

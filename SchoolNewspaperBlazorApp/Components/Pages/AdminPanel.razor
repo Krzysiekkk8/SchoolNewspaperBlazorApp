@@ -1,45 +1,108 @@
 ﻿@page "/adminPanel"
 @rendermode InteractiveServer
-@inject IArticleService articleService
+
 @using SchoolNewspaperBlazorApp.Components.Components
 @using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Interfaces.Service
 
+@inject IArticleService articleService
+
 <div class="main-block">
-    @if (view == 1)
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
     {
-        <div class="article-panel">
-            <ArticleCard Articles="articleList" permissions="true" />
-        </div>
+        <p role="alert">@errorMessage</p>
+    }
+
+    @if (view == 0)
+    {
+        <h2>Panel administratora</h2>
+
+        <button class="btn btn-primary" @onclick="LoadArticleAsync" disabled="@isLoading">
+            @(isLoading ? "Ładowanie..." : "Panel artykułów")
+        </button>
+
+        <button class="btn btn-primary" @onclick="() => SetView(2)">
+            Dodaj artykuł
+        </button>
+
+        <button class="btn btn-primary" @onclick="() => SetView(3)">
+            + Dodaj użytkownika
+        </button>
+    }
+    else if (view == 1)
+    {
+        <h2>Lista artykułów</h2>
+
+        @if (articleList.Count == 0)
+        {
+            <p>Nie znaleziono artykułów.</p>
+        }
+        else
+        {
+            <div class="article-panel">
+                <ArticleCard Articles="articleList" permissions="true" />
+            </div>
+        }
     }
     else if (view == 2)
     {
-       <ArticleForm/>
+        <h2>Dodaj artykuł</h2>
+        <ArticleForm />
     }
-    @if (view == 0)
+    else if (view == 3)
     {
-        <button class="btn btn-primary" @onclick="LoadArticleAsync">Panel artykulow</button>
-        <button class="btn btn-primary" @onclick=" () => SetView(2)">Dodaj artykul</button>
-        <button class="btn btn-primary" @onclick="">+ Dodaj Uzytkownika</button>
+        <h2>Dodawanie użytkownika</h2>
+        <p>Formularz dodawania użytkownika nie został jeszcze podłączony.</p>
     }
-    else
+
+    @if (view != 0)
     {
-        <button class="btn btn-primary" @onclick=" () => SetView(0)">Wróc</button>
+        <button class="btn btn-primary" @onclick="BackToMenu">
+            Wróć
+        </button>
     }
+
 </div>
 
-
 @code {
-    public int view = 0;
-    public List<Article> articleList = new List<Article>();
-   
-    public void SetView(int view)
+    private int view = 0;
+
+    private List<Article> articleList = new();
+
+    private bool isLoading = false;
+
+    private string? errorMessage;
+
+    private void SetView(int newView)
     {
-        this.view = view;
+        errorMessage = null;
+        view = newView;
     }
-    public async Task LoadArticleAsync()
+
+    private async Task LoadArticleAsync()
     {
-        articleList = await articleService.GetAllArticlesAsync();
-        SetView(1);
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            articleList = await articleService.GetAllArticlesAsync();
+            view = 1;
+        }
+        catch (Exception)
+        {
+            errorMessage = "Nie udało się pobrać listy artykułów.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void BackToMenu()
+    {
+        errorMessage = null;
+        view = 0;
     }
 }

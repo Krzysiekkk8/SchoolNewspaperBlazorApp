@@ -1,69 +1,181 @@
 ﻿@using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Interfaces.Service
-<div class="articles-grid">
-    
-@foreach (var article in Articles)
-{
-    @if (permissions == true)
+
+<div class="news-page">
+
+    @if (!permissions && Articles.Count > 0)
     {
-        <div class="card" style="width: 18rem;">
-            <img src="@GetImageUrl(article.FileID)" class="card-img-top img-fluid" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">@article.Title</h5>
-                <p class="card-text">@article.Text</p>
-                <p class="card-author">@article.Author</p>
-                <button class="btn btn-danger" @onclick="() => RemoveArticleByIdAsync(article.Id)">Usun Artykuł</button>
+        var featured = Articles[0];
+
+        <section class="news-featured-section">
+            <div class="news-section-heading">
+                <span class="news-eyebrow">GAZETKA SZKOLNA</span>
+                <h1>Co nowego w naszej szkole?</h1>
+                <p>Aktualności, wydarzenia i historie z życia naszej społeczności.</p>
             </div>
-        </div>
+
+            <NavLink class="news-featured-link"
+                     href="@($"/article/{featured.Id}")">
+                <article class="news-featured">
+                    <div class="news-featured-image-wrap">
+                        <img src="@GetImageUrl(featured.FileID)"
+                             alt="@featured.Title"
+                             class="news-featured-image" />
+                        <span class="news-featured-label">WARTO PRZECZYTAĆ</span>
+                    </div>
+
+                    <div class="news-featured-content">
+                        <span class="news-category">NAJNOWSZY ARTYKUŁ</span>
+                        <h2>@featured.Title</h2>
+                        <p class="news-featured-excerpt">@featured.Text</p>
+                        <span class="news-read-more">
+                            Czytaj artykuł <span aria-hidden="true">→</span>
+                        </span>
+                        <span class="news-author">
+                            Autor: @featured.Author
+                        </span>
+                    </div>
+                </article>
+            </NavLink>
+        </section>
+
+        @if (Articles.Count > 1)
+        {
+            <section class="news-latest">
+                <div class="news-list-heading">
+                    <div>
+                        <span class="news-eyebrow">CO SŁYCHAĆ?</span>
+                        <h2>Najnowsze publikacje</h2>
+                    </div>
+                    <span class="news-article-count">
+                        @Articles.Count artykułów
+                    </span>
+                </div>
+
+                <div class="news-grid">
+                    @foreach (var article in Articles.Skip(1))
+                    {
+                        <NavLink @key="article.Id"
+                                 class="news-card-link"
+                                 href="@($"/article/{article.Id}")">
+                            <article class="news-card">
+                                <div class="news-card-image-wrap">
+                                    <img src="@GetImageUrl(article.FileID)"
+                                         alt="@article.Title"
+                                         class="news-card-image" />
+                                </div>
+
+                                <div class="news-card-content">
+                                    <h3>@article.Title</h3>
+                                    <p class="news-card-excerpt">@article.Text</p>
+                                    <div class="news-card-footer">
+                                        <span>@article.Author</span>
+                                        <span class="news-card-arrow"
+                                              aria-hidden="true">→</span>
+                                    </div>
+                                </div>
+                            </article>
+                        </NavLink>
+                    }
+                </div>
+            </section>
+        }
+    }
+    else if (permissions)
+    {
+        <section class="news-admin-section">
+            <div class="news-list-heading">
+                <div>
+                    <span class="news-eyebrow">ZARZĄDZANIE TREŚCIĄ</span>
+                    <h2>Artykuły</h2>
+                </div>
+                <span class="news-article-count">
+                    @Articles.Count artykułów
+                </span>
+            </div>
+
+            <div class="news-grid">
+                @foreach (var article in Articles)
+                {
+                    <article @key="article.Id" class="news-card">
+                        <div class="news-card-image-wrap">
+                            <img src="@GetImageUrl(article.FileID)"
+                                 alt="@article.Title"
+                                 class="news-card-image" />
+                        </div>
+
+                        <div class="news-card-content">
+                            <h3>@article.Title</h3>
+                            <p class="news-card-excerpt">@article.Text</p>
+                            <div class="news-card-footer">
+                                <span>@article.Author</span>
+                            </div>
+                            <button type="button"
+                                    class="news-delete-button"
+                                    @onclick="() => RemoveArticleByIdAsync(article.Id)">
+                                Usuń artykuł
+                            </button>
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
     }
     else
     {
-        <NavLink class="nav-link" href="@($"/article/{article.Id}")">
-            <div class="card" style="width: 18rem;">
-                <img src="@GetImageUrl(article.FileID)" class="card-img-top img-fluid" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">@article.Title</h5>
-                    <p class="card-text">@article.Text</p>
-                    <p class="card-author">@article.Author</p>
-                </div>
-            </div>
-        </NavLink>
+        <div class="news-empty">
+            <h2>Na razie nie ma artykułów</h2>
+            <p>Wróć wkrótce, aby sprawdzić najnowsze wiadomości ze szkoły.</p>
+        </div>
     }
-}
-       
-    </div>
+
+</div>
 
 @code {
     [Parameter]
     public List<Article> Articles { get; set; } = new();
+
     [Parameter]
     public bool permissions { get; set; }
+
     [Inject]
     public required IArticleService articleService { get; set; }
+
     [Inject]
     public required IFileService fileService { get; set; }
-    Dictionary<int, string> imageUrls = new Dictionary<int, string>();
+
+    private readonly Dictionary<int, string> imageUrls = new();
+
     protected override async Task OnParametersSetAsync()
     {
         imageUrls.Clear();
+
         foreach (var article in Articles)
         {
-            var fileName = await fileService.GetFileNameByIdAsync(article.FileID);
-            if(!string.IsNullOrWhiteSpace(fileName))
+            var fileName =
+                await fileService.GetFileNameByIdAsync(article.FileID);
+
+            if (!string.IsNullOrWhiteSpace(fileName))
             {
                 imageUrls[article.FileID] = $"/Images/{fileName}";
             }
         }
     }
+
     private string GetImageUrl(int fileID)
     {
-        return imageUrls.TryGetValue(fileID, out var url) ? url : "";    
+        return imageUrls.TryGetValue(fileID, out var url)
+            ? url
+            : "";
     }
-    public async Task RemoveArticleByIdAsync(int id)
+
+    private async Task RemoveArticleByIdAsync(int id)
     {
         await articleService.RemoveArticleByIdAsync(id);
-        Article? article = Articles.FirstOrDefault(a => a.Id == id);
-        if (article != null)
+
+        var article = Articles.FirstOrDefault(a => a.Id == id);
+
+        if (article is not null)
         {
             Articles.Remove(article);
         }

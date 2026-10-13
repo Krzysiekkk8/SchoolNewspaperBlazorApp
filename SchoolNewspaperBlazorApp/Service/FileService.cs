@@ -13,7 +13,7 @@ namespace SchoolNewspaperBlazorApp.Service
         {
             _fileRepository = fileRepository;
         }
-        private readonly string uploadPath = @"C:\Users\Uczeń2026\source\repos\SchoolNewspaperBlazorApp\Images";
+        private readonly string uploadPath = @"C:\Users\Uczeń2026\source\repos\SchoolNewspaperETIBlazorApp";
         public async Task<string> GetPreviewAsync(IBrowserFile file)
         {
             using var stream = file.OpenReadStream(5 * 1024 * 1024);

@@ -3,24 +3,65 @@
 @using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Interfaces.Service
 
-@if (article != null)
+@if (isLoading)
 {
-    <h1>@article.Title</h1>
-    <p>@article.Text</p>
-    <p>Autor: @article.Author</p>
+    <p>Ładowanie artykułu...</p>
+}
+else if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <p role="alert">@errorMessage</p>
+}
+else if (article is null)
+{
+    <h2>Nie znaleziono artykułu</h2>
+    <p>Artykuł o podanym identyfikatorze nie istnieje.</p>
+}
+else
+{
+    <article>
+        <header>
+            <h1>@article.Title</h1>
+            <p>Autor: @article.Author</p>
+        </header>
+
+        <section>
+            <p>@article.Text</p>
+        </section>
+
+        <footer>
+            <a href="/">Wróć do strony głównej</a>
+        </footer>
+    </article>
 }
 
 @code {
     [Parameter]
     public int Id { get; set; }
 
-    public Article? article;
+    private Article? article;
+    private bool isLoading = true;
+    private string? errorMessage;
 
     [Inject]
-    public IArticleService articleService { get; set; }
+    public IArticleService articleService { get; set; } = default!;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        article = await articleService.GetArticleByIdAsync(Id);
+        isLoading = true;
+        errorMessage = null;
+        article = null;
+
+        try
+        {
+            article = await articleService.GetArticleByIdAsync(Id);
+        }
+        catch (Exception)
+        {
+            errorMessage = "Nie udało się załadować artykułu. Spróbuj ponownie później.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 }
